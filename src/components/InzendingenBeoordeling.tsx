@@ -209,12 +209,12 @@ export default function InzendingenBeoordeling() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Bedrijfsnaam</label>
-                    <p className="mt-1 text-sm text-gray-900">{sanitizeHtml(selectedInzendingData.indienerNaam)}</p>
+                    <p className="mt-1 text-sm text-gray-900">{sanitizeHtml(selectedInzendingData.indienerNaam || '')}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">KvK-nummer</label>
                     <p className="mt-1 text-sm text-gray-900">
-                      {sanitizeHtml(selectedInzendingData.indienerKvK)}
+                      {sanitizeHtml(selectedInzendingData.indienerKvK || '')}
                       {!validateKvKNumber(selectedInzendingData.indienerKvK) && (
                         <span className="ml-2 text-red-500 text-xs">⚠️ Ongeldig KvK nummer</span>
                       )}
@@ -223,7 +223,7 @@ export default function InzendingenBeoordeling() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700">E-mail</label>
                     <p className="mt-1 text-sm text-gray-900">
-                      {sanitizeHtml(selectedInzendingData.indienerEmail)}
+                      {sanitizeHtml(selectedInzendingData.indienerEmail || '')}
                       {!validateEmail(selectedInzendingData.indienerEmail) && (
                         <span className="ml-2 text-red-500 text-xs">⚠️ Ongeldig email</span>
                       )}
@@ -232,7 +232,7 @@ export default function InzendingenBeoordeling() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Telefoon</label>
                     <p className="mt-1 text-sm text-gray-900">
-                      {sanitizeHtml(selectedInzendingData.indienerTelefoon)}
+                      {sanitizeHtml(selectedInzendingData.indienerTelefoon || '')}
                       {!validatePhoneNumber(selectedInzendingData.indienerTelefoon) && (
                         <span className="ml-2 text-red-500 text-xs">⚠️ Ongeldig telefoonnummer</span>
                       )}

@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Upload, FileText, CheckCircle, AlertTriangle, X, Database } from 'lucide-react';
 import { ragService } from '../services/ragService';
 import { juridischeChunks, groepeerPerBron } from '../data/juridische-chunks';
-import { validateFile, sanitizeHtml, createAuditLog } from '../lib/security';
+import { validateFile, sanitizeHtml, createAuditLog, sanitizeFilePath } from '../lib/security';
 import type { Document } from '../types/rag';
 
 export default function DocumentIngestion() {
@@ -41,17 +41,24 @@ export default function DocumentIngestion() {
     const errors: string[] = [];
     
     selectedFiles.forEach(file => {
+      // Sanitize filename
+      const sanitizedName = sanitizeFilePath(file.name);
+      if (sanitizedName !== file.name) {
+        errors.push(`${file.name}: Bestandsnaam bevat ongeldige karakters`);
+        return;
+      }
+      
       const validation = validateFile(file);
       if (validation.isValid) {
         validFiles.push(file);
         // Audit log voor file upload
         console.log('Audit:', createAuditLog('FILE_SELECTED', 'document', { 
-          fileName: file.name, 
+          fileName: sanitizeHtml(file.name), 
           fileSize: file.size,
-          fileType: file.type 
+          fileType: sanitizeHtml(file.type)
         }));
       } else {
-        errors.push(`${file.name}: ${validation.error}`);
+        errors.push(`${sanitizeHtml(file.name)}: ${sanitizeHtml(validation.error || 'Onbekende fout')}`);
       }
     });
     

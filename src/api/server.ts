@@ -42,6 +42,9 @@ app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
   next();
 });
 
@@ -49,23 +52,28 @@ app.use((req, res, next) => {
 const rateLimitMap = new Map();
 const rateLimit = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
+  
+  // Sanitize IP address
+  const sanitizedIP = clientIP.replace(/[^0-9a-fA-F:.]/g, '');
+  
   const now = Date.now();
   const windowMs = 60000; // 1 minute
   const maxRequests = 5;
 
-  if (!rateLimitMap.has(clientIP)) {
-    rateLimitMap.set(clientIP, []);
+  if (!rateLimitMap.has(sanitizedIP)) {
+    rateLimitMap.set(sanitizedIP, []);
   }
 
-  const requests = rateLimitMap.get(clientIP);
+  const requests = rateLimitMap.get(sanitizedIP);
   const validRequests = requests.filter((time: number) => now - time < windowMs);
   
   if (validRequests.length >= maxRequests) {
+    console.warn(`Rate limit exceeded for IP: ${sanitizedIP}`);
     return res.status(429).json({ error: 'Too many requests' });
   }
 
   validRequests.push(now);
-  rateLimitMap.set(clientIP, validRequests);
+  rateLimitMap.set(sanitizedIP, validRequests);
   next();
 };
 
