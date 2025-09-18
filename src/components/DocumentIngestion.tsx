@@ -1,14 +1,14 @@
 import React, { useState, useCallback } from 'react';
 import { Upload, FileText, CheckCircle, AlertTriangle, X, Database } from 'lucide-react';
+import { useFileUpload } from '../hooks/useFileUpload';
+import { useApi } from '../hooks/useApi';
+import { formatFileSize } from '../utils/formatters';
 import { ragService } from '../services/ragService';
 import { juridischeChunks, groepeerPerBron } from '../data/juridische-chunks';
 import { validateFile, sanitizeHtml, createAuditLog, sanitizeFilePath } from '../lib/security';
 import type { Document } from '../types/rag';
 
 export default function DocumentIngestion() {
-  const [files, setFiles] = useState<File[]>([]);
-  const [uploading, setUploading] = useState(false);
-  const [uploadResults, setUploadResults] = useState<{ file: string; status: 'success' | 'error'; message: string }[]>([]);
   const [indexingLegal, setIndexingLegal] = useState(false);
 
   const documentTypes = [
@@ -26,6 +26,20 @@ export default function DocumentIngestion() {
     wetsartikel: '',
     source: ''
   });
+
+  const fileUpload = useFileUpload({
+    maxFiles: 10,
+    onValidationError: (errors) => {
+      alert(`Sommige bestanden zijn niet toegevoegd:\n${errors.join('\n')}`);
+    }
+  });
+
+  const uploadApi = useApi();
+
+  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(event.target.files || []);
+    fileUpload.validateAndAddFiles(selectedFiles);
+  }, [fileUpload]);
 
   const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(event.target.files || []);
@@ -66,7 +80,7 @@ export default function DocumentIngestion() {
       alert(`Sommige bestanden zijn niet toegevoegd:\n${errors.join('\n')}`);
     }
     
-    setFiles(prev => [...prev, ...validFiles]);
+    fileUpload.validateAndAddFiles(validFiles);
   }, []);
 
   const handleDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
@@ -90,25 +104,21 @@ export default function DocumentIngestion() {
       alert(`Sommige bestanden zijn niet toegevoegd:\n${errors.join('\n')}`);
     }
     
-    setFiles(prev => [...prev, ...validFiles]);
+    fileUpload.validateAndAddFiles(validFiles);
   }, []);
 
   const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
   }, []);
 
-  const removeFile = (index: number) => {
-    setFiles(prev => prev.filter((_, i) => i !== index));
-  };
-
   const handleUpload = async () => {
-    if (files.length === 0) return;
+    if (fileUpload.files.length === 0) return;
 
-    setUploading(true);
-    setUploadResults([]);
+    fileUpload.setUploading(true);
+    fileUpload.setResults([]);
 
     const results = await Promise.allSettled(
-      files.map(async (file) => {
+      fileUpload.files.map(async (file) => {
         try {
           const documentMetadata = {
             type: metadata.type,
@@ -129,9 +139,9 @@ export default function DocumentIngestion() {
       })
     );
 
-    setUploadResults(results.map(result => result.status === 'fulfilled' ? result.value : result.reason));
-    setUploading(false);
-    setFiles([]);
+    fileUpload.setResults(results.map(result => result.status === 'fulfilled' ? result.value : result.reason));
+    fileUpload.setUploading(false);
+    fileUpload.clearFiles();
   };
 
   const handleIndexLegalDocuments = async () => {
@@ -154,13 +164,13 @@ export default function DocumentIngestion() {
         if (success) successCount++;
       }
 
-      setUploadResults([{
+      fileUpload.setResults([{
         file: 'Juridische Kennisbasis',
         status: 'success',
         message: `${successCount}/${legalTexts.length} juridische documenten geïndexeerd (${juridischeChunks.length} chunks uit Aanbestedingswet & ARW)`
       }]);
     } catch (error) {
-      setUploadResults([{
+      fileUpload.setResults([{
         file: 'Juridische Kennisbasis',
         status: 'error',
         message: error instanceof Error ? error.message : 'Indexering mislukt'
@@ -168,13 +178,6 @@ export default function DocumentIngestion() {
     } finally {
       setIndexingLegal(false);
     }
-  };
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   return (
@@ -300,11 +303,11 @@ export default function DocumentIngestion() {
         </div>
 
         {/* Selected Files */}
-        {files.length > 0 && (
+        {fileUpload.files.length > 0 && (
           <div className="mt-6">
-            <h4 className="text-md font-medium text-gray-900 mb-3">Geselecteerde Bestanden ({files.length})</h4>
+            <h4 className="text-md font-medium text-gray-900 mb-3">Geselecteerde Bestanden ({fileUpload.files.length})</h4>
             <div className="space-y-2">
-              {files.map((file, index) => (
+              {fileUpload.files.map((file, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
                   <div className="flex items-center">
                     <FileText className="h-5 w-5 text-gray-400 mr-3" />
@@ -314,7 +317,7 @@ export default function DocumentIngestion() {
                     </div>
                   </div>
                   <button
-                    onClick={() => removeFile(index)}
+                    onClick={() => fileUpload.removeFile(index)}
                     className="text-red-600 hover:text-red-800"
                   >
                     <X className="h-4 w-4" />
@@ -326,21 +329,21 @@ export default function DocumentIngestion() {
             <div className="mt-4 flex justify-end">
               <button
                 onClick={handleUpload}
-                disabled={uploading}
+                disabled={fileUpload.uploading}
                 className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {uploading ? 'Uploaden...' : `${files.length} Document(en) Uploaden`}
+                {fileUpload.uploading ? 'Uploaden...' : `${fileUpload.files.length} Document(en) Uploaden`}
               </button>
             </div>
           </div>
         )}
 
         {/* Upload Results */}
-        {uploadResults.length > 0 && (
+        {fileUpload.results.length > 0 && (
           <div className="mt-6">
             <h4 className="text-md font-medium text-gray-900 mb-3">Upload Resultaten</h4>
             <div className="space-y-2">
-              {uploadResults.map((result, index) => (
+              {fileUpload.results.map((result, index) => (
                 <div key={index} className={`flex items-center p-3 rounded-md ${
                   result.status === 'success' ? 'bg-green-50' : 'bg-red-50'
                 }`}>

@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { Users, FileText, Download, CheckCircle, XCircle, Clock, Star, AlertTriangle } from 'lucide-react';
+import StatusBadge from './common/StatusBadge';
+import LoadingSpinner from './common/LoadingSpinner';
+import { formatFileSize, formatDate, formatCurrency } from '../utils/formatters';
 import { sanitizeHtml, validateEmail, validateKvKNumber, validatePhoneNumber } from '../lib/security';
 import type { Inzending, InzendingsBeoordeling } from '../types/aanbesteding';
 
 export default function InzendingenBeoordeling() {
+  const [loading, setLoading] = useState(false);
   const [selectedAanbesteding, setSelectedAanbesteding] = useState('');
   const [selectedInzending, setSelectedInzending] = useState<string | null>(null);
 
@@ -82,42 +86,6 @@ export default function InzendingenBeoordeling() {
     { id: 'duurzaamheid', naam: 'Duurzaamheid', wegingsfactor: 10, type: 'duurzaamheid' }
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'ingediend': return 'bg-blue-100 text-blue-800';
-      case 'in-behandeling': return 'bg-yellow-100 text-yellow-800';
-      case 'goedgekeurd': return 'bg-green-100 text-green-800';
-      case 'afgewezen': return 'bg-red-100 text-red-800';
-      case 'gegund': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'ingediend': return <Clock className="h-4 w-4" />;
-      case 'in-behandeling': return <Clock className="h-4 w-4" />;
-      case 'goedgekeurd': return <CheckCircle className="h-4 w-4" />;
-      case 'afgewezen': return <XCircle className="h-4 w-4" />;
-      case 'gegund': return <Star className="h-4 w-4" />;
-      default: return <FileText className="h-4 w-4" />;
-    }
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600 bg-green-100';
-    if (score >= 60) return 'text-yellow-600 bg-yellow-100';
-    return 'text-red-600 bg-red-100';
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
   const filteredInzendingen = selectedAanbesteding 
     ? inzendingen.filter(i => i.aanbestedingId === selectedAanbesteding)
     : inzendingen;
@@ -125,6 +93,10 @@ export default function InzendingenBeoordeling() {
   const selectedInzendingData = selectedInzending 
     ? inzendingen.find(i => i.id === selectedInzending)
     : null;
+
+  if (loading) {
+    return <LoadingSpinner size="lg" text="Inzendingen laden..." />;
+  }
 
   return (
     <div className="space-y-6">
@@ -176,21 +148,22 @@ export default function InzendingenBeoordeling() {
                       <h4 className="text-sm font-medium text-gray-900">{inzending.indienerNaam}</h4>
                       <p className="text-xs text-gray-500 mt-1">KvK: {inzending.indienerKvK}</p>
                       <p className="text-xs text-gray-500">
-                        Ingediend: {inzending.inzendingsDatum.toLocaleDateString('nl-NL')}
+                        Ingediend: {formatDate(inzending.inzendingsDatum)}
                       </p>
                       {inzending.beoordeling && (
                         <div className="mt-2">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getScoreColor(inzending.beoordeling.totaalScore)}`}>
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            inzending.beoordeling.totaalScore >= 80 ? 'text-green-600 bg-green-100' :
+                            inzending.beoordeling.totaalScore >= 60 ? 'text-yellow-600 bg-yellow-100' :
+                            'text-red-600 bg-red-100'
+                          }`}>
                             Score: {inzending.beoordeling.totaalScore}
                           </span>
                         </div>
                       )}
                     </div>
                     <div className="flex flex-col items-end">
-                      <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(inzending.status)}`}>
-                        {getStatusIcon(inzending.status)}
-                        <span className="ml-1">{inzending.status}</span>
-                      </span>
+                      <StatusBadge status={inzending.status} type="submission" size="sm" />
                     </div>
                   </div>
                 </div>
@@ -252,7 +225,7 @@ export default function InzendingenBeoordeling() {
                         <div>
                           <p className="text-sm font-medium text-gray-900">{document.naam}</p>
                           <p className="text-xs text-gray-500">
-                            {formatFileSize(document.grootte)} • {document.uploadDatum.toLocaleDateString('nl-NL')}
+                            {formatFileSize(document.grootte)} • {formatDate(document.uploadDatum)}
                           </p>
                         </div>
                       </div>
@@ -277,7 +250,7 @@ export default function InzendingenBeoordeling() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Beoordelingsdatum</label>
                       <p className="mt-1 text-sm text-gray-900">
-                        {selectedInzendingData.beoordeling.beoordelingsDatum.toLocaleDateString('nl-NL')}
+                        {formatDate(selectedInzendingData.beoordeling.beoordelingsDatum)}
                       </p>
                     </div>
                   </div>
@@ -295,7 +268,11 @@ export default function InzendingenBeoordeling() {
                                 <span className="text-sm font-medium text-gray-700">
                                   {criterium.naam} ({criterium.wegingsfactor}%)
                                 </span>
-                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getScoreColor(score)}`}>
+                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                                  score >= 80 ? 'text-green-600 bg-green-100' :
+                                  score >= 60 ? 'text-yellow-600 bg-yellow-100' :
+                                  'text-red-600 bg-red-100'
+                                }`}>
                                   {score}
                                 </span>
                               </div>
@@ -318,7 +295,11 @@ export default function InzendingenBeoordeling() {
                   <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-medium text-gray-900">Totaalscore</span>
-                      <span className={`px-3 py-1 text-lg font-bold rounded-full ${getScoreColor(selectedInzendingData.beoordeling.totaalScore)}`}>
+                      <span className={`px-3 py-1 text-lg font-bold rounded-full ${
+                        selectedInzendingData.beoordeling.totaalScore >= 80 ? 'text-green-600 bg-green-100' :
+                        selectedInzendingData.beoordeling.totaalScore >= 60 ? 'text-yellow-600 bg-yellow-100' :
+                        'text-red-600 bg-red-100'
+                      }`}>
                         {selectedInzendingData.beoordeling.totaalScore}
                       </span>
                     </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Layout from './components/Layout';
@@ -97,9 +98,11 @@ function AppContent() {
 
 function App() {
   return (
+    <ErrorBoundary>
     <AuthProvider>
       <AppContent />
     </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
