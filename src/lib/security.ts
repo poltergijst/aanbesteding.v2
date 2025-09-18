@@ -23,7 +23,7 @@ export function sanitizeSqlInput(input: string): string {
   }
   // Remove dangerous SQL characters and keywords
   return input
-    .replace(/[';--]/g, '')
+    .replace(/[';-]/g, '')
     .replace(/\b(DROP|DELETE|INSERT|UPDATE|CREATE|ALTER|EXEC|EXECUTE|UNION|SELECT)\b/gi, '')
     .trim();
 }
