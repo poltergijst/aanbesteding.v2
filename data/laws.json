@@ -1,0 +1,78 @@
+[
+  {
+    "id": "wet-2.84",
+    "bron": "Aanbestedingswet 2012",
+    "hoofdstuk": "Hoofdstuk 2",
+    "artikel": "2.84",
+    "text": "De aanbestedende dienst kan verlangen dat een inschrijver een Uniform Europees Aanbestedingsdocument (UEA) overlegt. Het UEA moet volledig worden ingevuld en rechtsgeldig ondertekend.",
+    "tags": ["UEA", "ESPD", "ondertekening", "formele vereisten"]
+  },
+  {
+    "id": "wet-2.93",
+    "bron": "Aanbestedingswet 2012",
+    "hoofdstuk": "Hoofdstuk 2",
+    "artikel": "2.93",
+    "text": "Een inschrijving die niet voldoet aan de door de aanbestedende dienst gestelde eisen wordt terzijde gelegd, tenzij het gaat om een herstelbare vormfout.",
+    "tags": ["inschrijving", "eisen", "vormfout", "terzijde leggen"]
+  },
+  {
+    "id": "arw-2.5.3",
+    "bron": "ARW 2016",
+    "paragraaf": "2.5.3",
+    "text": "De inschrijver dient een recent uittreksel uit het handelsregister (KvK) te overleggen, niet ouder dan zes maanden.",
+    "tags": ["KvK", "handelsregister", "uittreksel", "zes maanden", "geschiktheidseisen"]
+  },
+  {
+    "id": "arw-3.1.2",
+    "bron": "ARW 2016",
+    "paragraaf": "3.1.2",
+    "text": "Het plan van aanpak moet ten minste de methodiek, planning en kwaliteitsbewaking beschrijven, conform de eisen in het bestek.",
+    "tags": ["plan van aanpak", "methodiek", "planning", "kwaliteitsbewaking", "bestek"]
+  },
+  {
+    "id": "arw-4.2.1",
+    "bron": "ARW 2016",
+    "paragraaf": "4.2.1",
+    "text": "Het inschrijvingsbiljet en prijsblad moeten volledig ingevuld en door een bevoegd vertegenwoordiger ondertekend zijn.",
+    "tags": ["inschrijvingsbiljet", "prijsblad", "ondertekening", "bevoegd vertegenwoordiger"]
+  },
+  {
+    "id": "arw-4.3.5",
+    "bron": "ARW 2016",
+    "paragraaf": "4.3.5",
+    "text": "De inschrijver moet referenties overleggen die aantonen dat hij voldoet aan de gevraagde ervaringseisen.",
+    "tags": ["referenties", "ervaring", "ervaringseisen", "geschiktheidseisen"]
+  },
+  {
+    "id": "wet-2.16",
+    "bron": "Aanbestedingswet 2012",
+    "hoofdstuk": "Hoofdstuk 2",
+    "artikel": "2.16",
+    "text": "Aanbestedende diensten maken hun voornemen tot het plaatsen van een overheidsopdracht bekend door middel van een aankondiging van de opdracht in het Publicatieblad van de Europese Unie.",
+    "tags": ["publicatie", "aankondiging", "EU publicatieblad", "bekendmaking"]
+  },
+  {
+    "id": "wet-2.18",
+    "bron": "Aanbestedingswet 2012",
+    "hoofdstuk": "Hoofdstuk 2",
+    "artikel": "2.18",
+    "text": "Aanbestedende diensten gunnen de overheidsopdracht op basis van het criterium van de economisch meest voordelige inschrijving, bepaald op basis van prijs of kosten of op basis van de beste prijs-kwaliteitverhouding.",
+    "tags": ["gunningscriteria", "economisch meest voordelig", "prijs-kwaliteitverhouding"]
+  },
+  {
+    "id": "wet-2.20",
+    "bron": "Aanbestedingswet 2012",
+    "hoofdstuk": "Hoofdstuk 2",
+    "artikel": "2.20",
+    "text": "Aanbestedende diensten sluiten een ondernemer uit van deelneming aan een aanbestedingsprocedure wanneer zij er kennis van hebben dat die ondernemer bij onherroepelijk vonnis is veroordeeld wegens deelneming aan een criminele organisatie, corruptie, fraude of witwassen van geld.",
+    "tags": ["uitsluitingsgronden", "criminele organisatie", "corruptie", "fraude", "witwassen"]
+  },
+  {
+    "id": "wet-2.21",
+    "bron": "Aanbestedingswet 2012",
+    "hoofdstuk": "Hoofdstuk 2",
+    "artikel": "2.21",
+    "text": "Aanbestedende diensten kunnen eisen stellen betreffende de geschiktheid van ondernemers om overheidsopdrachten uit te voeren. De eisen hebben betrekking op bevoegdheid tot uitoefening van de beroepsactiviteit, economische en financiële draagkracht, en technische bekwaamheid.",
+    "tags": ["geschiktheidseisen", "beroepsactiviteit", "financiële draagkracht", "technische bekwaamheid"]
+  }
+]
